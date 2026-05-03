@@ -23,70 +23,132 @@ export function SkillTree() {
 
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Initialize on mount
   useEffect(() => {
     initializeSkillTree();
   }, [initializeSkillTree]);
 
-  // Organize skills by tier
+  // Calculate skill depth using topological sort
+  const calculateSkillDepth = (): Record<string, number> => {
+    const depths: Record<string, number> = {};
+    const visited = new Set<string>();
+    const visiting = new Set<string>();
+
+    const visit = (skillId: string): number => {
+      if (depths[skillId] !== undefined) return depths[skillId];
+      if (visiting.has(skillId)) return 0; // Cycle detection
+      if (visited.has(skillId)) return depths[skillId];
+
+      visiting.add(skillId);
+      const skill = skills.find((s) => s.id === skillId);
+
+      if (!skill || skill.prerequisiteIds.length === 0) {
+        depths[skillId] = 0;
+      } else {
+        const maxPrereqDepth = Math.max(
+          ...skill.prerequisiteIds.map((id) => visit(id))
+        );
+        depths[skillId] = maxPrereqDepth + 1;
+      }
+
+      visiting.delete(skillId);
+      visited.add(skillId);
+      return depths[skillId];
+    };
+
+    skills.forEach((skill) => visit(skill.id));
+    return depths;
+  };
+
+  // Organize skills by tier (depth)
   const getTierLayout = () => {
+    const depths = calculateSkillDepth();
     const tiers: { [key: number]: string[] } = {};
 
     skills.forEach((skill) => {
-      const tier = skill.prerequisiteIds.length === 0 ? 0 : 1 + skill.prerequisiteIds.length;
-      if (!tiers[tier]) tiers[tier] = [];
-      tiers[tier].push(skill.id);
+      const depth = depths[skill.id] || 0;
+      if (!tiers[depth]) tiers[depth] = [];
+      tiers[depth].push(skill.id);
     });
 
-    return Object.entries(tiers).map(([_, skillIds]) => skillIds);
+    return Object.entries(tiers)
+      .sort(([a], [b]) => Number(a) - Number(b))
+      .map(([_, skillIds]) => skillIds);
   };
 
   const tiers = getTierLayout();
 
-  // SVG connections drawing
+  // Optimized SVG connections drawing
   useEffect(() => {
-    if (!svgRef.current) return;
+    if (!svgRef.current || !containerRef.current) return;
 
     const svg = svgRef.current;
     svg.innerHTML = ""; // Clear previous lines
 
+    // Get all node positions
     const nodes = document.querySelectorAll("[data-skill-id]");
-    const nodeMap = new Map<string, DOMRect>();
+    const nodeMap = new Map<string, { x: number; y: number; width: number; height: number }>();
 
     nodes.forEach((node) => {
       const skillId = node.getAttribute("data-skill-id");
       if (skillId) {
-        nodeMap.set(skillId, node.getBoundingClientRect());
+        const rect = node.getBoundingClientRect();
+        const svgRect = svg.getBoundingClientRect();
+        nodeMap.set(skillId, {
+          x: rect.left - svgRect.left,
+          y: rect.top - svgRect.top,
+          width: rect.width,
+          height: rect.height,
+        });
       }
     });
 
+    // Draw only direct prerequisite connections
+    const drawnConnections = new Set<string>();
+    
     skills.forEach((skill) => {
       skill.prerequisiteIds.forEach((prereqId) => {
         const fromNode = nodeMap.get(prereqId);
         const toNode = nodeMap.get(skill.id);
 
         if (fromNode && toNode) {
-          const fromX = fromNode.left + fromNode.width / 2 - svg.getBoundingClientRect().left;
-          const fromY = fromNode.top + fromNode.height - svg.getBoundingClientRect().top;
-          const toX = toNode.left + toNode.width / 2 - svg.getBoundingClientRect().left;
-          const toY = toNode.top - svg.getBoundingClientRect().top;
+          // Create unique connection ID to avoid duplicates
+          const connId = `${prereqId}-${skill.id}`;
+          if (drawnConnections.has(connId)) return;
+          drawnConnections.add(connId);
+
+          const fromX = fromNode.x + fromNode.width / 2;
+          const fromY = fromNode.y + fromNode.height;
+          const toX = toNode.x + toNode.width / 2;
+          const toY = toNode.y;
+
+          // Calculate a smooth curved path with proper spacing
+          const midY = fromY + (toY - fromY) / 2;
+          const d = `M ${fromX} ${fromY} C ${fromX} ${midY} ${toX} ${midY} ${toX} ${toY}`;
 
           const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
-          const d = `M ${fromX} ${fromY} Q ${(fromX + toX) / 2} ${(fromY + toY) / 2} ${toX} ${toY}`;
+          line.setAttribute("d", d);
 
           const status = getSkillStatus(skill.id);
           const prereqStatus = getSkillStatus(prereqId);
 
-          let strokeColor = "var(--border)";
-          if (status === "locked") strokeColor = "#6b7280";
+          // Color based on prerequisite completion status
+          let strokeColor = "#4b5563";
           if (prereqStatus === "completed") strokeColor = "#10b981";
+          else if (status === "unlocked") strokeColor = "#7c3aed";
+          else if (status === "in-progress") strokeColor = "#7c3aed";
 
-          line.setAttribute("d", d);
           line.setAttribute("stroke", strokeColor);
-          line.setAttribute("stroke-width", "2");
+          line.setAttribute("stroke-width", "2.5");
           line.setAttribute("fill", "none");
           line.setAttribute("stroke-linecap", "round");
+          line.setAttribute("stroke-linejoin", "round");
+          line.setAttribute("opacity", prereqStatus === "completed" ? "1" : "0.6");
+
+          // Add subtle filter for better visuals
+          line.style.filter = prereqStatus === "completed" ? "drop-shadow(0 0 4px rgba(16, 185, 129, 0.3))" : "none";
 
           svg.appendChild(line);
         }
@@ -125,16 +187,16 @@ export function SkillTree() {
       </motion.div>
 
       {/* Tree visualization */}
-      <div className="relative w-full">
-        {/* SVG for connections */}
+      <div ref={containerRef} className="relative w-full">
+        {/* SVG for connections - with proper sizing */}
         <svg
           ref={svgRef}
           className="absolute inset-0 w-full h-full pointer-events-none"
-          style={{ minHeight: "100%" }}
+          style={{ minHeight: "100%", zIndex: 0 }}
         />
 
-        {/* Tiers grid */}
-        <div className="relative z-10 flex flex-col gap-12">
+        {/* Tiers grid with better spacing */}
+        <div className="relative z-10 flex flex-col gap-20">
           {tiers.map((tierSkillIds, tierIndex) => (
             <motion.div
               key={tierIndex}
@@ -144,16 +206,22 @@ export function SkillTree() {
               className="w-full"
             >
               {/* Tier label */}
-              <div className="mb-4 flex items-center gap-2">
+              <div className="mb-6 flex items-center gap-2">
                 <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
-                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--text-muted)" }}>
-                  {tierIndex === 0 ? "Foundation" : tierIndex === 1 ? "Intermediate" : "Advanced"}
+                <span
+                  className="text-xs font-bold uppercase tracking-widest whitespace-nowrap px-3 py-1 rounded-full"
+                  style={{
+                    background: "var(--surface-hover)",
+                    color: "var(--accent-light)",
+                  }}
+                >
+                  {tierIndex === 0 ? "🌱 Foundation" : tierIndex === 1 ? "📚 Intermediate" : "🚀 Advanced"}
                 </span>
                 <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
               </div>
 
-              {/* Skills grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Skills grid - responsive columns with larger gaps */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {tierSkillIds.map((skillId, index) => {
                   const skill = skills.find((s) => s.id === skillId);
                   if (!skill) return null;
@@ -168,13 +236,14 @@ export function SkillTree() {
                       layout
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: index * 0.05 }}
+                      transition={{ delay: index * 0.08 }}
                       onClick={() => {
                         if (status !== "locked") {
                           setSelectedSkill(skillId);
                           addToast(skill.description, "info", 3000);
                         }
                       }}
+                      className="h-full"
                     >
                       <SkillNode
                         skill={skill}
@@ -209,7 +278,7 @@ export function SkillTree() {
         style={{ background: "var(--surface)" }}
       >
         <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-          Complete lessons to progress through the skill tree. Unlock new skills as you complete prerequisites.
+          💡 Complete lessons to progress through the skill tree. Unlock new skills as you complete prerequisites.
         </p>
       </motion.div>
     </div>
