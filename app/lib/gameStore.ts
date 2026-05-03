@@ -1,7 +1,25 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type Skin = "default" | "fire" | "ice" | "galaxy" | "gold" | "shadow" | "neon";
+export type Skin = "default" | "fire" | "ice" | "galaxy" | "gold" | "shadow" | "neon" | "custom";
+
+export interface CustomTheme {
+  bg: string;
+  accent: string;
+  text: string;
+  surface: string;
+  grad1: string;
+  grad2: string;
+  name: string;
+}
+
+export interface CustomAvatar {
+  emoji: string;
+  bgColor: string;
+  borderColor: string;
+  accessory: string;
+  shape: "circle" | "rounded" | "hexagon";
+}
 
 export interface Achievement {
   id: string;
@@ -33,6 +51,8 @@ export interface GameState {
   // Avatar
   activeSkin: Skin;
   unlockedSkins: Skin[];
+  customTheme: CustomTheme | null;
+  customAvatar: CustomAvatar | null;
   // Language progress
   languages: Record<string, LanguageProgress>;
   // Achievements
@@ -49,6 +69,8 @@ export interface GameState {
   setSkin: (skin: Skin) => void;
   unlockSkin: (skin: Skin) => void;
   unlockAchievement: (id: string) => void;
+  saveCustomTheme: (theme: CustomTheme) => void;
+  saveCustomAvatar: (avatar: CustomAvatar) => void;
 }
 
 const XP_PER_LEVEL = 200;
@@ -72,6 +94,8 @@ export const useGameStore = create<GameState>()(
       level: 1,
       activeSkin: "default",
       unlockedSkins: ["default"],
+      customTheme: null,
+      customAvatar: null,
       languages: {},
       achievements: ALL_ACHIEVEMENTS,
       streak: 0,
@@ -153,6 +177,9 @@ export const useGameStore = create<GameState>()(
           ),
         });
       },
+
+      saveCustomTheme: (theme) => set({ customTheme: theme }),
+      saveCustomAvatar: (avatar) => set({ customAvatar: avatar }),
     }),
     { name: "edustream-game" }
   )

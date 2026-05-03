@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import "./globals.css";
-import { Moon, Sun, Sparkles, Trophy, Swords, Home, Palette, LayoutDashboard, User, LogOut, Shield } from "lucide-react";
+import { Moon, Sun, Sparkles, Trophy, Swords, Home, Palette, LayoutDashboard, User, LogOut, Shield, Users, Wand2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -85,7 +85,9 @@ function Navbar() {
     { href: "/",            icon: Home,          label: "Home"        },
     { href: "/leaderboard", icon: Trophy,         label: "Leaderboard" },
     { href: "/arena",       icon: Swords,         label: "Arena"       },
+    { href: "/community",   icon: Users,          label: "Community"   },
     ...(userName ? [{ href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" }] : []),
+    { href: "/studio",      icon: Wand2,          label: "Studio"      },
     { href: "/admin",       icon: Shield,         label: "Creator Hub" },
   ];
 

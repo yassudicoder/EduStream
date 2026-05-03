@@ -18,6 +18,7 @@ export function Avatar() {
     gold: "bg-gradient-to-b from-yellow-300 to-amber-600",
     shadow: "bg-gradient-to-b from-gray-700 to-gray-900",
     neon: "bg-gradient-to-b from-green-400 to-cyan-600",
+    custom: "bg-gradient-to-b from-violet-400 to-blue-600",
   };
 
   const skinIcons: Record<Skin, React.ReactNode> = {
@@ -28,6 +29,7 @@ export function Avatar() {
     gold: <Crown className="w-8 h-8" />,
     shadow: <Shield className="w-8 h-8" />,
     neon: <Zap className="w-8 h-8" />,
+    custom: <Sparkles className="w-8 h-8" />,
   };
 
   return (
