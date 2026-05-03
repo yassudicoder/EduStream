@@ -75,7 +75,7 @@ export default function CommunityDetailPage({ params }: { params: Promise<{ id: 
     if (isJoined) {
       leaveCommunity(id, user.name);
     } else {
-      joinCommunity(id, { name: user.name, avatar: "🧑💻", xp, level, role: "member", joinedAt: Date.now() });
+      joinCommunity(id, { name: user.name, avatar: "🧑💻", xp, level, role: "member", joinedAt: Date.now(), verified: false });
     }
   }
 

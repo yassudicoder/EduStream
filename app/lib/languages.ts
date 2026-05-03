@@ -35,6 +35,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   en: {
     // Navigation
     "nav.home": "Home",
+    "nav.skills": "Skills",
     "nav.leaderboard": "Leaderboard",
     "nav.arena": "Arena",
     "nav.community": "Community",
@@ -66,6 +67,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   },
   es: {
     "nav.home": "Inicio",
+    "nav.skills": "Habilidades",
     "nav.leaderboard": "Tabla de Clasificación",
     "nav.arena": "Arena",
     "nav.community": "Comunidad",
@@ -93,6 +95,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   },
   fr: {
     "nav.home": "Accueil",
+    "nav.skills": "Compétences",
     "nav.leaderboard": "Classement",
     "nav.arena": "Arène",
     "nav.community": "Communauté",
@@ -120,6 +123,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   },
   de: {
     "nav.home": "Startseite",
+    "nav.skills": "Fähigkeiten",
     "nav.leaderboard": "Rangliste",
     "nav.arena": "Arena",
     "nav.community": "Gemeinschaft",
@@ -147,7 +151,8 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   },
   it: {
     "nav.home": "Home",
-    "nav.leaderboard": "Classifica",
+    "nav.skills": "Competenze",
+    "nav.leaderboard": "Classifiche",
     "nav.arena": "Arena",
     "nav.community": "Comunità",
     "nav.dashboard": "Pannello",
@@ -174,6 +179,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   },
   pt: {
     "nav.home": "Início",
+    "nav.skills": "Habilidades",
     "nav.leaderboard": "Classificação",
     "nav.arena": "Arena",
     "nav.community": "Comunidade",
@@ -201,6 +207,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   },
   ru: {
     "nav.home": "Главная",
+    "nav.skills": "Навыки",
     "nav.leaderboard": "Таблица Лидеров",
     "nav.arena": "Арена",
     "nav.community": "Сообщество",
@@ -228,6 +235,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   },
   ja: {
     "nav.home": "ホーム",
+    "nav.skills": "スキル",
     "nav.leaderboard": "リーダーボード",
     "nav.arena": "アリーナ",
     "nav.community": "コミュニティ",
@@ -255,6 +263,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   },
   zh: {
     "nav.home": "主页",
+    "nav.skills": "技能",
     "nav.leaderboard": "排行榜",
     "nav.arena": "竞技场",
     "nav.community": "社区",
@@ -282,6 +291,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   },
   ko: {
     "nav.home": "홈",
+    "nav.skills": "스킬",
     "nav.leaderboard": "순위표",
     "nav.arena": "경기장",
     "nav.community": "커뮤니티",
@@ -309,6 +319,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   },
   nl: {
     "nav.home": "Startpagina",
+    "nav.skills": "Vaardigheden",
     "nav.leaderboard": "Ranglijst",
     "nav.arena": "Arena",
     "nav.community": "Gemeenschap",
@@ -336,6 +347,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   },
   pl: {
     "nav.home": "Strona Główna",
+    "nav.skills": "Umiejętności",
     "nav.leaderboard": "Ranking",
     "nav.arena": "Arena",
     "nav.community": "Społeczność",
@@ -363,6 +375,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   },
   tr: {
     "nav.home": "Ana Sayfa",
+    "nav.skills": "Beceriler",
     "nav.leaderboard": "Skor Tablosu",
     "nav.arena": "Arena",
     "nav.community": "Topluluk",
@@ -390,6 +403,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   },
   ar: {
     "nav.home": "الصفحة الرئيسية",
+    "nav.skills": "المهارات",
     "nav.leaderboard": "جدول الترتيب",
     "nav.arena": "الساحة",
     "nav.community": "المجتمع",
@@ -417,6 +431,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   },
   th: {
     "nav.home": "หน้าแรก",
+    "nav.skills": "ทักษะ",
     "nav.leaderboard": "ตารางอันดับ",
     "nav.arena": "อリนา",
     "nav.community": "ชุมชน",
@@ -444,6 +459,7 @@ export const TRANSLATIONS: Record<LanguageCode, Record<string, string>> = {
   },
   vi: {
     "nav.home": "Trang Chủ",
+    "nav.skills": "Kĩ Năng",
     "nav.leaderboard": "Bảng Xếp Hạng",
     "nav.arena": "Đấu Trường",
     "nav.community": "Cộng Đồng",

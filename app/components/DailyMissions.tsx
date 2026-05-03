@@ -17,7 +17,7 @@ export function DailyMissions() {
   const getTodaysMissionsXp = useMissionStore((s) => s.getTodaysMissionsXp);
 
   const addXP = useGameStore((s) => s.addXP);
-  const { showToast } = useToast();
+  const { addToast } = useToast();
   const [showCelebration, setShowCelebration] = useState(false);
   const [previousCompletedCount, setPreviousCompletedCount] = useState(0);
 
@@ -37,11 +37,11 @@ export function DailyMissions() {
       const newlyCompletedMission = missions.find((m) => m.status === "completed" && m.completedAt);
       if (newlyCompletedMission) {
         // Show toast notification
-        showToast({
-          type: "achievement",
-          title: "Mission Completed! 🎉",
-          message: `${newlyCompletedMission.title} - +${newlyCompletedMission.xpReward} XP`,
-        });
+        addToast(
+          `${newlyCompletedMission.title} - +${newlyCompletedMission.xpReward} XP`,
+          "achievement",
+          4000
+        );
 
         // Add XP to user
         addXP(newlyCompletedMission.xpReward);
@@ -64,7 +64,7 @@ export function DailyMissions() {
     <div className="w-full">
       {/* Celebration effect */}
       <AnimatePresence>
-        {showCelebration && <ConfettiCelebration />}
+        {showCelebration && <ConfettiCelebration trigger={showCelebration} />}
       </AnimatePresence>
 
       {/* Header with stats */}

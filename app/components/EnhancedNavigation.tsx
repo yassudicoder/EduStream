@@ -17,7 +17,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { useTheme } from "./layout";
+import { useTheme } from "../layout";
 
 const MENU_ITEMS = [
   { href: "/", icon: Home, label: "Home" },
@@ -26,7 +26,7 @@ const MENU_ITEMS = [
   { href: "/arena", icon: Swords, label: "Arena" },
   { href: "/leaderboard", icon: Trophy, label: "Leaderboard" },
   { href: "/avatar", icon: Users, label: "Avatar" },
-  { href: "/admin", icon: Settings, label: Creator Hub" },
+  { href: "/admin", icon: Settings, label: "Creator Hub" },
 ];
 
 export function EnhancedNavigation() {

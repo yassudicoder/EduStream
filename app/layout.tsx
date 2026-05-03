@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import "./globals.css";
-import { Moon, Sun, Sparkles, Trophy, Swords, Home, Palette, LayoutDashboard, User, LogOut, Shield, Users, Wand2, Settings, Bell, Globe, ChevronDown } from "lucide-react";
+import { Moon, Sun, Sparkles, Trophy, Swords, Home, Palette, LayoutDashboard, User, LogOut, Shield, Users, Wand2, Settings, Bell, Globe, ChevronDown, TreePine } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -88,6 +88,7 @@ function Navbar() {
 
   const NAV_LINKS = [
     { href: "/",            icon: Home,          label: t("nav.home")        },
+    { href: "/skills",      icon: TreePine,      label: t("nav.skills")      },
     { href: "/leaderboard", icon: Trophy,         label: t("nav.leaderboard") },
     { href: "/arena",       icon: Swords,         label: t("nav.arena")       },
     { href: "/community",   icon: Users,          label: t("nav.community")   },

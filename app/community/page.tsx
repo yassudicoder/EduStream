@@ -30,9 +30,10 @@ export default function CommunityPage() {
     const id = createCommunity({
       ...form,
       tags: form.tags.split(",").map(t => t.trim()).filter(Boolean),
+      requiresVerification: false,
     });
     if (user) {
-      joinCommunity(id, { name: user.name, avatar: "🧑💻", xp, level, role: "admin", joinedAt: Date.now() });
+      joinCommunity(id, { name: user.name, avatar: "🧑💻", xp, level, role: "admin", joinedAt: Date.now(), verified: true });
     }
     setShowCreate(false);
     setForm({ name: "", college: "", description: "", emoji: "🏛️", color: "#7c3aed", isPrivate: false, tags: "" });
@@ -41,7 +42,7 @@ export default function CommunityPage() {
 
   function handleJoin(communityId: string) {
     if (!user) { router.push("/login"); return; }
-    joinCommunity(communityId, { name: user.name, avatar: "🧑💻", xp, level, role: "member", joinedAt: Date.now() });
+    joinCommunity(communityId, { name: user.name, avatar: "🧑💻", xp, level, role: "member", joinedAt: Date.now(), verified: false });
     router.push(`/community/${communityId}`);
   }
 
