@@ -1,213 +1,165 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence, type Easing } from "framer-motion";
-import { Search, Sparkles, BookOpen, Lightbulb, Tag, Cpu } from "lucide-react";
-import SimulationCard from "./components/SimulationCard";
+import { motion } from "framer-motion";
+import { Sparkles, Trophy, Swords, BookOpen, ArrowRight, Zap, Users, Star } from "lucide-react";
+import Link from "next/link";
+import { useGameStore } from "./lib/gameStore";
 
-type Level = "toddler" | "student" | "expert";
+const EASE = "easeOut";
 
-interface ExplainResult {
-  concept: string;
-  level: string;
-  explanation: string;
-  analogy: string;
-  key_terms: string[];
-  visual_prompt: string;
-  simulation: string;
-  powered_by: "gemini" | "local";
-}
-
-const LEVELS: { id: Level; label: string; emoji: string }[] = [
-  { id: "toddler", label: "Toddler", emoji: "🧸" },
-  { id: "student", label: "Student", emoji: "📚" },
-  { id: "expert", label: "Expert", emoji: "🔬" },
+const FEATURES = [
+  { icon: BookOpen, title: "Gamified Coding Lessons", desc: "Learn HTML, CSS, JavaScript from scratch. Level up as you complete lessons.", color: "#a78bfa", href: "/dashboard" },
+  { icon: Swords,   title: "Battle Arena",            desc: "1v1 duels, group battles, tournaments. Compete in DSA, coding & quiz wars.", color: "#f87171", href: "/arena" },
+  { icon: Trophy,   title: "Global Leaderboard",      desc: "Climb the ranks. Compete with coders worldwide. Show off your streak.", color: "#fbbf24", href: "/leaderboard" },
+  { icon: Star,     title: "Avatar & Skins",          desc: "Unlock skins by leveling up. Customize your coder identity.", color: "#34d399", href: "/avatar" },
+  { icon: Users,    title: "Creator Hub",             desc: "Teachers & companies can create tournaments, tests and analyze students.", color: "#60a5fa", href: "/admin" },
+  { icon: Zap,      title: "Achievements",            desc: "Earn badges, maintain streaks, and unlock rewards as you grow.", color: "#f97316", href: "/dashboard" },
 ];
 
-const EASE: Easing = "easeOut";
-
-function cardAnim(i: number) {
-  return {
-    initial: { opacity: 0, y: 24 },
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: 24 },
-    transition: { delay: i * 0.1, duration: 0.4, ease: EASE },
-  };
-}
-
 export default function Home() {
-  const [query, setQuery] = useState("");
-  const [level, setLevel] = useState<Level>("student");
-  const [result, setResult] = useState<ExplainResult | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (!query.trim()) return;
-    setLoading(true);
-    setResult(null);
-    const res = await fetch("/api/explain", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ concept: query, level }),
-    });
-    const data = await res.json();
-    setResult(data);
-    setLoading(false);
-  }
+  const user = useGameStore(s => s.user);
 
   return (
-    <main className="min-h-screen px-4 py-12 md:py-20 max-w-4xl mx-auto flex flex-col gap-10">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-center flex flex-col items-center gap-3"
-      >
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 glass px-4 py-1.5 rounded-full text-sm text-violet-300">
-            <Sparkles size={14} />
-            <span>EduStream — ELI5 Engine</span>
-          </div>
-          {result && (
-            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
-              result.powered_by === "gemini"
-                ? "bg-blue-500/20 border border-blue-400/30 text-blue-300"
-                : "bg-white/10 border border-white/20 text-white/50"
-            }`}>
-              <Cpu size={11} />
-              {result.powered_by === "gemini" ? "Powered by Gemini AI" : "Local Knowledge Base"}
-            </div>
-          )}
-        </div>
-        <h1 className="text-4xl md:text-6xl font-bold text-white tracking-tight">
-          Understand{" "}
-          <span className="bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">
-            Anything
-          </span>
-        </h1>
-        <p className="text-white/50 text-base md:text-lg max-w-md">
-          Type any concept and get a crystal-clear explanation tailored to your level.
-        </p>
-      </motion.div>
+    <main className="min-h-screen px-4 pt-28 pb-20 max-w-5xl mx-auto flex flex-col gap-16">
 
-      {/* Hero Search */}
-      <motion.form
-        onSubmit={handleSearch}
-        initial={{ opacity: 0, y: 20 }}
+      {/* Hero */}
+      <motion.section
+        initial={{ opacity: 0, y: -24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15, duration: 0.5 }}
+        transition={{ duration: 0.6, ease: EASE }}
+        className="text-center flex flex-col items-center gap-6"
+      >
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className="inline-flex items-center gap-2 glass px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest"
+          style={{ color: "var(--accent-light)" }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          Learn · Compete · Level Up
+        </motion.div>
+
+        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-none" style={{ color: "var(--text)" }}>
+          Code Smarter.<br />
+          <span className="grad-text">Win Together.</span>
+        </h1>
+
+        <p className="text-base md:text-lg max-w-md leading-relaxed" style={{ color: "var(--text-muted)" }}>
+          EduStream is a gamified coding platform where you learn, battle, and compete with coders worldwide.
+        </p>
+
+        <div className="flex items-center gap-3 flex-wrap justify-center">
+          {user ? (
+            <Link href="/dashboard">
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-white text-sm"
+                style={{ background: "var(--btn-grad)", boxShadow: "0 8px 32px var(--accent-glow)" }}>
+                Go to Dashboard <ArrowRight size={16} />
+              </motion.div>
+            </Link>
+          ) : (
+            <Link href="/login">
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-white text-sm"
+                style={{ background: "var(--btn-grad)", boxShadow: "0 8px 32px var(--accent-glow)" }}>
+                <Sparkles size={16} /> Get Started Free <ArrowRight size={16} />
+              </motion.div>
+            </Link>
+          )}
+          <Link href="/arena">
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm glass"
+              style={{ color: "var(--text-muted)" }}>
+              <Swords size={16} /> Enter Arena
+            </motion.div>
+          </Link>
+        </div>
+
+        {/* Stats row */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="flex items-center gap-6 flex-wrap justify-center mt-2"
+        >
+          {[
+            { value: "10K+", label: "Coders" },
+            { value: "500+", label: "Challenges" },
+            { value: "50+", label: "Tournaments" },
+            { value: "8", label: "Themes" },
+          ].map(({ value, label }) => (
+            <div key={label} className="text-center">
+              <p className="text-2xl font-extrabold grad-text">{value}</p>
+              <p className="text-xs" style={{ color: "var(--text-faint)" }}>{label}</p>
+            </div>
+          ))}
+        </motion.div>
+      </motion.section>
+
+      {/* Features grid */}
+      <motion.section
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
         className="flex flex-col gap-4"
       >
-        <div className="glow-border glass rounded-2xl flex items-center gap-3 px-5 py-4 transition-all duration-300">
-          <Search size={20} className="text-white/40 shrink-0" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="e.g. Quantum Entanglement, Black Holes, DNA..."
-            className="flex-1 bg-transparent text-white placeholder-white/30 outline-none text-base"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-sm font-semibold px-5 py-2 rounded-xl transition-colors duration-200 shrink-0"
-          >
-            {loading ? "Thinking..." : "Explain"}
-          </button>
-        </div>
-
-        {/* Level Toggle */}
-        <div className="glass rounded-2xl p-1.5 flex gap-1 self-center">
-          {LEVELS.map(({ id, label, emoji }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setLevel(id)}
-              className={`px-5 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                level === id
-                  ? "bg-violet-600 text-white shadow-lg shadow-violet-900/40"
-                  : "text-white/50 hover:text-white/80"
-              }`}
-            >
-              {emoji} {label}
-            </button>
+        <p className="text-xs font-bold uppercase tracking-widest text-center" style={{ color: "var(--text-faint)" }}>
+          Everything you need to grow as a coder
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {FEATURES.map(({ icon: Icon, title, desc, color, href }, i) => (
+            <Link key={title} href={href}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + i * 0.07 }}
+                whileHover={{ scale: 1.03, y: -4 }}
+                whileTap={{ scale: 0.98 }}
+                className="glass card-shine rounded-2xl p-5 flex flex-col gap-3 cursor-pointer h-full"
+                style={{ border: `1px solid ${color}18` }}
+              >
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ background: color + "22" }}>
+                  <Icon size={18} style={{ color }} />
+                </div>
+                <div>
+                  <p className="font-bold text-sm" style={{ color: "var(--text)" }}>{title}</p>
+                  <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--text-faint)" }}>{desc}</p>
+                </div>
+                <div className="flex items-center gap-1 mt-auto text-xs font-bold"
+                  style={{ color }}>
+                  Explore <ArrowRight size={12} />
+                </div>
+              </motion.div>
+            </Link>
           ))}
         </div>
-      </motion.form>
+      </motion.section>
 
-      {/* Results */}
-      <AnimatePresence>
-        {result && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Explanation */}
-            <motion.div
-              {...cardAnim(0)}
-              className="glass rounded-2xl p-6 flex flex-col gap-3 md:col-span-2"
-            >
-              <div className="flex items-center gap-2 text-violet-300">
-                <BookOpen size={16} />
-                <span className="text-xs font-semibold uppercase tracking-wider">Simple Explanation</span>
-              </div>
-              <p className="text-white/90 text-base leading-relaxed">{result.explanation}</p>
-            </motion.div>
-
-            {/* Analogy */}
-            <motion.div
-              {...cardAnim(1)}
-              className="glass rounded-2xl p-6 flex flex-col gap-3"
-            >
-              <div className="flex items-center gap-2 text-blue-300">
-                <Lightbulb size={16} />
-                <span className="text-xs font-semibold uppercase tracking-wider">Real-life Analogy</span>
-              </div>
-              <p className="text-white/80 text-sm leading-relaxed">{result.analogy}</p>
-            </motion.div>
-
-            {/* Key Terms */}
-            <motion.div
-              {...cardAnim(2)}
-              className="glass rounded-2xl p-6 flex flex-col gap-3"
-            >
-              <div className="flex items-center gap-2 text-emerald-300">
-                <Tag size={16} />
-                <span className="text-xs font-semibold uppercase tracking-wider">Key Terms</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {result.key_terms.map((term) => (
-                  <span
-                    key={term}
-                    className="bg-emerald-500/15 border border-emerald-500/25 text-emerald-300 text-xs px-3 py-1 rounded-full"
-                  >
-                    {term}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Simulation */}
-            <motion.div
-              {...cardAnim(3)}
-              className="md:col-span-2"
-            >
-              <SimulationCard simulation={result.simulation as "atom" | "gravity" | "blackhole" | "dna" | "wave" | "neural" | "quantum"} concept={result.concept} />
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Empty state */}
-      {!result && !loading && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="text-center text-white/25 text-sm"
-        >
-          Search for any concept above to get started ✨
-        </motion.p>
-      )}
+      {/* CTA */}
+      <motion.section
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="glass card-shine rounded-3xl p-10 flex flex-col items-center gap-5 text-center"
+        style={{ border: "1px solid var(--accent-glow)" }}
+      >
+        <div className="text-5xl">🚀</div>
+        <h2 className="text-3xl font-extrabold" style={{ color: "var(--text)" }}>
+          Ready to <span className="grad-text">Level Up?</span>
+        </h2>
+        <p className="text-sm max-w-sm" style={{ color: "var(--text-muted)" }}>
+          Join thousands of coders learning, competing, and growing every day.
+        </p>
+        <Link href={user ? "/dashboard" : "/login"}>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 px-8 py-3.5 rounded-2xl font-bold text-white"
+            style={{ background: "var(--btn-grad)", boxShadow: "0 8px 40px var(--accent-glow)" }}>
+            <Zap size={16} /> {user ? "Continue Learning" : "Start for Free"} <ArrowRight size={16} />
+          </motion.div>
+        </Link>
+      </motion.section>
     </main>
   );
 }

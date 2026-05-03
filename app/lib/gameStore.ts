@@ -1,0 +1,161 @@
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+
+export type Skin = "default" | "fire" | "ice" | "galaxy" | "gold" | "shadow" | "neon";
+
+export interface Achievement {
+  id: string;
+  title: string;
+  desc: string;
+  icon: string;
+  unlockedAt?: number;
+}
+
+export interface LessonProgress {
+  completed: boolean;
+  score: number; // 0-100
+  attempts: number;
+}
+
+export interface LanguageProgress {
+  started: boolean;
+  currentLesson: number;
+  lessons: Record<string, LessonProgress>;
+  xpEarned: number;
+}
+
+export interface GameState {
+  // User
+  user: { name: string; email: string } | null;
+  // XP & Level
+  xp: number;
+  level: number;
+  // Avatar
+  activeSkin: Skin;
+  unlockedSkins: Skin[];
+  // Language progress
+  languages: Record<string, LanguageProgress>;
+  // Achievements
+  achievements: Achievement[];
+  // Streak
+  streak: number;
+  lastActiveDate: string;
+
+  // Actions
+  login: (name: string, email: string) => void;
+  logout: () => void;
+  addXP: (amount: number) => void;
+  completeLesson: (lang: string, lessonId: string, score: number) => void;
+  setSkin: (skin: Skin) => void;
+  unlockSkin: (skin: Skin) => void;
+  unlockAchievement: (id: string) => void;
+}
+
+const XP_PER_LEVEL = 200;
+
+const ALL_ACHIEVEMENTS: Achievement[] = [
+  { id: "first_lesson",   title: "First Step",      desc: "Complete your first lesson",          icon: "🎯" },
+  { id: "html_master",    title: "HTML Master",      desc: "Complete all HTML lessons",           icon: "🏆" },
+  { id: "css_wizard",     title: "CSS Wizard",       desc: "Complete all CSS lessons",            icon: "🎨" },
+  { id: "js_ninja",       title: "JS Ninja",         desc: "Complete all JavaScript lessons",     icon: "⚡" },
+  { id: "streak_7",       title: "On Fire",          desc: "7-day learning streak",               icon: "🔥" },
+  { id: "perfect_score",  title: "Perfectionist",    desc: "Score 100% on any lesson",            icon: "💎" },
+  { id: "level_5",        title: "Rising Star",      desc: "Reach Level 5",                       icon: "⭐" },
+  { id: "level_10",       title: "Code Warrior",     desc: "Reach Level 10",                      icon: "🗡️" },
+];
+
+export const useGameStore = create<GameState>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      xp: 0,
+      level: 1,
+      activeSkin: "default",
+      unlockedSkins: ["default"],
+      languages: {},
+      achievements: ALL_ACHIEVEMENTS,
+      streak: 0,
+      lastActiveDate: "",
+
+      login: (name, email) => {
+        set({ user: { name, email } });
+        // Update streak
+        const today = new Date().toDateString();
+        const { lastActiveDate, streak } = get();
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        const newStreak = lastActiveDate === yesterday ? streak + 1 : lastActiveDate === today ? streak : 1;
+        set({ streak: newStreak, lastActiveDate: today });
+      },
+
+      logout: () => set({ user: null }),
+
+      addXP: (amount) => {
+        const { xp, level } = get();
+        const newXP = xp + amount;
+        const newLevel = Math.floor(newXP / XP_PER_LEVEL) + 1;
+        set({ xp: newXP, level: newLevel });
+
+        // Unlock skins at milestones
+        if (newLevel >= 3  && !get().unlockedSkins.includes("fire"))    get().unlockSkin("fire");
+        if (newLevel >= 5  && !get().unlockedSkins.includes("ice"))     get().unlockSkin("ice");
+        if (newLevel >= 8  && !get().unlockedSkins.includes("galaxy"))  get().unlockSkin("galaxy");
+        if (newLevel >= 12 && !get().unlockedSkins.includes("gold"))    get().unlockSkin("gold");
+        if (newLevel >= 15 && !get().unlockedSkins.includes("shadow"))  get().unlockSkin("shadow");
+        if (newLevel >= 20 && !get().unlockedSkins.includes("neon"))    get().unlockSkin("neon");
+
+        // Level achievements
+        if (newLevel >= 5)  get().unlockAchievement("level_5");
+        if (newLevel >= 10) get().unlockAchievement("level_10");
+      },
+
+      completeLesson: (lang, lessonId, score) => {
+        const { languages } = get();
+        const langData = languages[lang] ?? { started: true, currentLesson: 0, lessons: {}, xpEarned: 0 };
+        const prev = langData.lessons[lessonId];
+        const isNew = !prev?.completed;
+        const xpGain = isNew ? Math.round(50 + score * 0.5) : Math.round(score * 0.2);
+
+        set({
+          languages: {
+            ...languages,
+            [lang]: {
+              ...langData,
+              started: true,
+              currentLesson: Math.max(langData.currentLesson, parseInt(lessonId) + 1),
+              xpEarned: langData.xpEarned + xpGain,
+              lessons: {
+                ...langData.lessons,
+                [lessonId]: { completed: true, score: Math.max(prev?.score ?? 0, score), attempts: (prev?.attempts ?? 0) + 1 },
+              },
+            },
+          },
+        });
+
+        get().addXP(xpGain);
+        if (isNew) get().unlockAchievement("first_lesson");
+        if (score === 100) get().unlockAchievement("perfect_score");
+      },
+
+      setSkin: (skin) => {
+        if (get().unlockedSkins.includes(skin)) set({ activeSkin: skin });
+      },
+
+      unlockSkin: (skin) => {
+        const { unlockedSkins } = get();
+        if (!unlockedSkins.includes(skin)) set({ unlockedSkins: [...unlockedSkins, skin] });
+      },
+
+      unlockAchievement: (id) => {
+        const { achievements } = get();
+        set({
+          achievements: achievements.map(a =>
+            a.id === id && !a.unlockedAt ? { ...a, unlockedAt: Date.now() } : a
+          ),
+        });
+      },
+    }),
+    { name: "edustream-game" }
+  )
+);
+
+export const XP_PER_LEVEL_CONST = XP_PER_LEVEL;
