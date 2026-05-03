@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { RankTier } from "./rankStore";
 
 export type Skin = "default" | "fire" | "ice" | "galaxy" | "gold" | "shadow" | "neon" | "custom";
 
@@ -48,6 +49,10 @@ export interface GameState {
   // XP & Level
   xp: number;
   level: number;
+  // Rank System
+  rank: RankTier;
+  previousRank: RankTier | null;
+  rankUpgradeNotification: boolean;
   // Avatar
   activeSkin: Skin;
   unlockedSkins: Skin[];
@@ -71,9 +76,27 @@ export interface GameState {
   unlockAchievement: (id: string) => void;
   saveCustomTheme: (theme: CustomTheme) => void;
   saveCustomAvatar: (avatar: CustomAvatar) => void;
+  dismissRankNotification: () => void;
+  calculateRank: (xp: number) => RankTier;
 }
 
 const XP_PER_LEVEL = 200;
+
+const RANK_THRESHOLDS: Record<RankTier, number> = {
+  bronze: 0,
+  silver: 5000,
+  gold: 15000,
+  platinum: 30000,
+  diamond: 50000,
+};
+
+const calculateRankFromXP = (xp: number): RankTier => {
+  if (xp >= RANK_THRESHOLDS.diamond) return "diamond";
+  if (xp >= RANK_THRESHOLDS.platinum) return "platinum";
+  if (xp >= RANK_THRESHOLDS.gold) return "gold";
+  if (xp >= RANK_THRESHOLDS.silver) return "silver";
+  return "bronze";
+};
 
 const ALL_ACHIEVEMENTS: Achievement[] = [
   { id: "first_lesson",   title: "First Step",      desc: "Complete your first lesson",          icon: "🎯" },
@@ -92,6 +115,9 @@ export const useGameStore = create<GameState>()(
       user: null,
       xp: 0,
       level: 1,
+      rank: "bronze",
+      previousRank: null,
+      rankUpgradeNotification: false,
       activeSkin: "default",
       unlockedSkins: ["default"],
       customTheme: null,
@@ -114,10 +140,25 @@ export const useGameStore = create<GameState>()(
       logout: () => set({ user: null }),
 
       addXP: (amount) => {
-        const { xp, level } = get();
+        const { xp, level, rank } = get();
         const newXP = xp + amount;
         const newLevel = Math.floor(newXP / XP_PER_LEVEL) + 1;
-        set({ xp: newXP, level: newLevel });
+        const newRank = calculateRankFromXP(newXP);
+
+        // Check if rank upgraded
+        const isRankUpgrade = newRank !== rank;
+        const rankOrder: RankTier[] = ["bronze", "silver", "gold", "platinum", "diamond"];
+        const oldRankIndex = rankOrder.indexOf(rank);
+        const newRankIndex = rankOrder.indexOf(newRank);
+        const isPromotion = newRankIndex > oldRankIndex;
+
+        set({
+          xp: newXP,
+          level: newLevel,
+          previousRank: isRankUpgrade ? rank : null,
+          rank: newRank,
+          rankUpgradeNotification: isRankUpgrade && isPromotion,
+        });
 
         // Unlock skins at milestones
         if (newLevel >= 3  && !get().unlockedSkins.includes("fire"))    get().unlockSkin("fire");
@@ -180,6 +221,8 @@ export const useGameStore = create<GameState>()(
 
       saveCustomTheme: (theme) => set({ customTheme: theme }),
       saveCustomAvatar: (avatar) => set({ customAvatar: avatar }),
+      dismissRankNotification: () => set({ rankUpgradeNotification: false }),
+      calculateRank: (xp: number): RankTier => calculateRankFromXP(xp),
     }),
     { name: "edustream-game" }
   )

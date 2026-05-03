@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Flame, Zap, Star, Crown, Medal, TrendingUp, Search } from "lucide-react";
+import { RankTier, RANK_CONFIGS } from "@/app/lib/rankStore";
+import { RankBadge as RankTierBadge } from "@/app/components/RankBadge";
 
 type Tab = "global" | "weekly" | "friends";
 
@@ -16,38 +18,39 @@ interface Player {
   badge: string;
   change: number; // rank change
   lang: string;
+  userRank: RankTier; // Bronze, Silver, Gold, Platinum, Diamond
 }
 
 const MOCK_PLAYERS: Player[] = [
-  { rank: 1,  name: "CodeNinja_X",    avatar: "🥷", level: 42, xp: 84200, streak: 67, badge: "🏆", change: 0,  lang: "Python"     },
-  { rank: 2,  name: "ByteWizard",     avatar: "🧙", level: 38, xp: 76500, streak: 45, badge: "⚡", change: 1,  lang: "JavaScript" },
-  { rank: 3,  name: "AlgoQueen",      avatar: "👑", level: 35, xp: 70100, streak: 52, badge: "💎", change: -1, lang: "C++"        },
-  { rank: 4,  name: "ReactRocket",    avatar: "🚀", level: 31, xp: 62300, streak: 30, badge: "🔥", change: 2,  lang: "React"      },
-  { rank: 5,  name: "DataDragon",     avatar: "🐉", level: 29, xp: 58700, streak: 28, badge: "🌟", change: -1, lang: "Python"     },
-  { rank: 6,  name: "HackMaster99",   avatar: "💻", level: 27, xp: 54100, streak: 21, badge: "🎯", change: 3,  lang: "Go"         },
-  { rank: 7,  name: "PixelCoder",     avatar: "🎮", level: 25, xp: 50200, streak: 19, badge: "🎨", change: 0,  lang: "CSS"        },
-  { rank: 8,  name: "NeuralNomad",    avatar: "🤖", level: 24, xp: 48000, streak: 15, badge: "🧠", change: -2, lang: "Python"     },
-  { rank: 9,  name: "CloudSurfer",    avatar: "☁️", level: 22, xp: 44500, streak: 12, badge: "⭐", change: 1,  lang: "TypeScript" },
-  { rank: 10, name: "BinaryBeast",    avatar: "⚙️", level: 21, xp: 42100, streak: 10, badge: "🔩", change: 0,  lang: "Rust"       },
-  { rank: 11, name: "LoopLegend",     avatar: "🔄", level: 20, xp: 40000, streak: 9,  badge: "🎖️", change: 2,  lang: "Java"       },
-  { rank: 12, name: "StackSorcerer",  avatar: "🪄", level: 19, xp: 38200, streak: 8,  badge: "✨", change: -1, lang: "JavaScript" },
-  { rank: 13, name: "GitGuru",        avatar: "🌿", level: 18, xp: 36100, streak: 7,  badge: "🌱", change: 4,  lang: "Shell"      },
-  { rank: 14, name: "APIArtist",      avatar: "🎭", level: 17, xp: 34000, streak: 6,  badge: "🎪", change: -2, lang: "Node.js"    },
-  { rank: 15, name: "You",            avatar: "😎", level: 5,  xp: 1200,  streak: 3,  badge: "🌟", change: 5,  lang: "HTML"       },
+  { rank: 1,  name: "CodeNinja_X",    avatar: "🥷", level: 42, xp: 84200, streak: 67, badge: "🏆", change: 0,  lang: "Python",     userRank: "diamond" },
+  { rank: 2,  name: "ByteWizard",     avatar: "🧙", level: 38, xp: 76500, streak: 45, badge: "⚡", change: 1,  lang: "JavaScript", userRank: "diamond" },
+  { rank: 3,  name: "AlgoQueen",      avatar: "👑", level: 35, xp: 70100, streak: 52, badge: "💎", change: -1, lang: "C++",        userRank: "platinum" },
+  { rank: 4,  name: "ReactRocket",    avatar: "🚀", level: 31, xp: 62300, streak: 30, badge: "🔥", change: 2,  lang: "React",      userRank: "platinum" },
+  { rank: 5,  name: "DataDragon",     avatar: "🐉", level: 29, xp: 58700, streak: 28, badge: "🌟", change: -1, lang: "Python",     userRank: "platinum" },
+  { rank: 6,  name: "HackMaster99",   avatar: "💻", level: 27, xp: 54100, streak: 21, badge: "🎯", change: 3,  lang: "Go",         userRank: "gold" },
+  { rank: 7,  name: "PixelCoder",     avatar: "🎮", level: 25, xp: 50200, streak: 19, badge: "🎨", change: 0,  lang: "CSS",        userRank: "gold" },
+  { rank: 8,  name: "NeuralNomad",    avatar: "🤖", level: 24, xp: 48000, streak: 15, badge: "🧠", change: -2, lang: "Python",     userRank: "gold" },
+  { rank: 9,  name: "CloudSurfer",    avatar: "☁️", level: 22, xp: 44500, streak: 12, badge: "⭐", change: 1,  lang: "TypeScript", userRank: "gold" },
+  { rank: 10, name: "BinaryBeast",    avatar: "⚙️", level: 21, xp: 42100, streak: 10, badge: "🔩", change: 0,  lang: "Rust",       userRank: "silver" },
+  { rank: 11, name: "LoopLegend",     avatar: "🔄", level: 20, xp: 40000, streak: 9,  badge: "🎖️", change: 2,  lang: "Java",       userRank: "silver" },
+  { rank: 12, name: "StackSorcerer",  avatar: "🪄", level: 19, xp: 38200, streak: 8,  badge: "✨", change: -1, lang: "JavaScript", userRank: "silver" },
+  { rank: 13, name: "GitGuru",        avatar: "🌿", level: 18, xp: 36100, streak: 7,  badge: "🌱", change: 4,  lang: "Shell",      userRank: "silver" },
+  { rank: 14, name: "APIArtist",      avatar: "🎭", level: 17, xp: 34000, streak: 6,  badge: "🎪", change: -2, lang: "Node.js",    userRank: "silver" },
+  { rank: 15, name: "You",            avatar: "😎", level: 5,  xp: 1200,  streak: 3,  badge: "🌟", change: 5,  lang: "HTML",       userRank: "bronze" },
 ];
 
 const WEEKLY_PLAYERS: Player[] = [
-  { rank: 1,  name: "SpeedCoder",   avatar: "⚡", level: 15, xp: 4200, streak: 7,  badge: "🥇", change: 8,  lang: "Python"     },
-  { rank: 2,  name: "NightOwl_Dev", avatar: "🦉", level: 22, xp: 3800, streak: 5,  badge: "🥈", change: 3,  lang: "JavaScript" },
-  { rank: 3,  name: "AlgoQueen",    avatar: "👑", level: 35, xp: 3500, streak: 7,  badge: "🥉", change: 0,  lang: "C++"        },
-  { rank: 4,  name: "You",          avatar: "😎", level: 5,  xp: 800,  streak: 3,  badge: "🌟", change: 12, lang: "HTML"       },
+  { rank: 1,  name: "SpeedCoder",   avatar: "⚡", level: 15, xp: 4200, streak: 7,  badge: "🥇", change: 8,  lang: "Python",     userRank: "silver" },
+  { rank: 2,  name: "NightOwl_Dev", avatar: "🦉", level: 22, xp: 3800, streak: 5,  badge: "🥈", change: 3,  lang: "JavaScript", userRank: "silver" },
+  { rank: 3,  name: "AlgoQueen",    avatar: "👑", level: 35, xp: 3500, streak: 7,  badge: "🥉", change: 0,  lang: "C++",        userRank: "platinum" },
+  { rank: 4,  name: "You",          avatar: "😎", level: 5,  xp: 800,  streak: 3,  badge: "🌟", change: 12, lang: "HTML",       userRank: "bronze" },
   ...MOCK_PLAYERS.slice(3, 10).map((p, i) => ({ ...p, rank: i + 5, xp: Math.round(p.xp * 0.05) })),
 ];
 
 const RANK_COLORS = ["#ffd700", "#c0c0c0", "#cd7f32"];
 const RANK_ICONS = [Crown, Medal, Star];
 
-function RankBadge({ rank }: { rank: number }) {
+function LeaderboardRankBadge({ rank }: { rank: number }) {
   if (rank <= 3) {
     const Icon = RANK_ICONS[rank - 1];
     return <Icon size={18} style={{ color: RANK_COLORS[rank - 1] }} />;
@@ -158,9 +161,12 @@ export default function LeaderboardPage() {
                     <p className="text-xs font-bold truncate max-w-[80px]" style={{ color: "var(--text)" }}>{p.name}</p>
                     <p className="text-[10px]" style={{ color: "var(--text-faint)" }}>Lv.{p.level}</p>
                   </div>
+                  {/* Position Badge */}
                   <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: `${RANK_COLORS[p.rank - 1]}22` }}>
-                    <RankBadge rank={p.rank} />
+                    <LeaderboardRankBadge rank={p.rank} />
                   </div>
+                  {/* Tier Badge */}
+                  <RankTierBadge rank={p.userRank} size="sm" animated={false} />
                   <p className="text-xs font-bold" style={{ color: "var(--accent-light)" }}>{p.xp.toLocaleString()} XP</p>
                 </motion.div>
               );
@@ -187,7 +193,7 @@ export default function LeaderboardPage() {
 
         {/* Rows */}
         {(tab === "friends"
-          ? [{ rank: 1, name: "You", avatar: "😎", level: 5, xp: 1200, streak: 3, badge: "🌟", change: 0, lang: "HTML" } as Player]
+          ? [{ rank: 1, name: "You", avatar: "😎", level: 5, xp: 1200, streak: 3, badge: "🌟", change: 0, lang: "HTML", userRank: "bronze" as RankTier } as Player]
           : filtered
         ).map((p, i) => {
           const isYou = p.name === "You";
@@ -202,15 +208,17 @@ export default function LeaderboardPage() {
               }}
             >
               <div className="col-span-1 flex items-center justify-center w-7 h-7">
-                <RankBadge rank={p.rank} />
+                <LeaderboardRankBadge rank={p.rank} />
               </div>
               <div className="col-span-4 flex items-center gap-2">
                 <span className="text-xl">{p.avatar}</span>
-                <div>
+                <div className="flex-1">
                   <p className="text-xs font-bold" style={{ color: isYou ? "var(--accent-light)" : "var(--text)" }}>
                     {p.name}{isYou && " (You)"}
                   </p>
-                  <p className="text-[10px]" style={{ color: "var(--text-faint)" }}>{p.badge}</p>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <RankTierBadge rank={p.userRank} size="sm" animated={false} />
+                  </div>
                 </div>
               </div>
               <div className="col-span-2 hidden sm:block">

@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { Flame, Award, Trophy, Swords, BookOpen, Star, Zap, ChevronRight, User } from "lucide-react";
 import Link from "next/link";
 import { DailyMissions } from "@/app/components/DailyMissions";
+import { RankDisplay } from "@/app/components/RankBadge";
 
 const XP_PER_LEVEL = 200;
 
@@ -37,7 +38,7 @@ const LANG_META: Record<string, { emoji: string; color: string; desc: string }> 
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, xp, level, streak, achievements, languages, activeSkin } = useGameStore();
+  const { user, xp, level, rank, streak, achievements, languages, activeSkin } = useGameStore();
 
   useEffect(() => {
     if (!user) router.push("/login");
@@ -90,19 +91,29 @@ export default function DashboardPage() {
 
       {/* Stats row */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-        className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {[
-          { icon: Star,   label: "Level",        value: String(level),                  color: "#a78bfa" },
-          { icon: Zap,    label: "Total XP",      value: xp.toLocaleString(),            color: "#fbbf24" },
-          { icon: Flame,  label: "Day Streak",    value: `${streak} 🔥`,                 color: "#f97316" },
-          { icon: Award,  label: "Achievements",  value: `${unlockedAchievements.length}/${achievements.length}`, color: "#34d399" },
-        ].map(({ icon: Icon, label, value, color }) => (
-          <div key={label} className="glass card-shine rounded-2xl p-4 flex flex-col gap-2">
-            <Icon size={16} style={{ color }} />
-            <p className="text-xl font-extrabold" style={{ color: "var(--text)" }}>{value}</p>
-            <p className="text-[10px] uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>{label}</p>
+        className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {/* Rank Display Card */}
+        <div className="glass card-shine rounded-2xl p-5">
+          <RankDisplay rank={rank} xp={xp} layout="horizontal" />
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { icon: Star,   label: "Level",        value: String(level),                  color: "#a78bfa" },
+              { icon: Zap,    label: "Total XP",      value: xp.toLocaleString(),            color: "#fbbf24" },
+              { icon: Flame,  label: "Day Streak",    value: `${streak} 🔥`,                 color: "#f97316" },
+              { icon: Award,  label: "Achievements",  value: `${achievements.filter(a => a.unlockedAt).length}/${achievements.length}`, color: "#34d399" },
+            ].map(({ icon: Icon, label, value, color }) => (
+              <div key={label} className="glass card-shine rounded-2xl p-4 flex flex-col gap-2">
+                <Icon size={16} style={{ color }} />
+                <p className="text-lg font-extrabold" style={{ color: "var(--text)" }}>{value}</p>
+                <p className="text-[10px] uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>{label}</p>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </motion.div>
 
       {/* XP progress */}

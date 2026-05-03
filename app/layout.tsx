@@ -9,6 +9,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ToastProvider } from "./components/ToastSystem";
 import { LanguageProvider, useLanguage } from "./lib/useLanguage";
 import { LANGUAGES } from "./lib/languages";
+import { RankUpgradePopup } from "./components/RankUpgradePopup";
 
 export type ThemeName = "light" | "dark" | "hacker" | "cyberpunk" | "ocean" | "sunset" | "aurora" | "midnight" | "rose";
 
@@ -418,6 +419,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <div className="absolute inset-0" style={{ background: "var(--overlay)" }} />
               </div>
               <Navbar />
+              <RankUpgradePopup />
               {children}
             </ToastProvider>
           </LanguageProvider>

@@ -3,10 +3,20 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Swords, Users, Trophy, Timer as TimerIcon, Code, Brain, Zap, Play, CheckCircle, XCircle, Flame } from "lucide-react";
+import { RankBadge } from "@/app/components/RankBadge";
+import { RankTier } from "@/app/lib/rankStore";
 
 type Mode = "1v1" | "group" | "tournament";
 type Category = "coding" | "dsa" | "quiz";
 type Phase = "lobby" | "battle" | "result";
+
+interface Opponent {
+  name: string;
+  avatar: string;
+  level: number;
+  rating: number;
+  rank: RankTier;
+}
 
 interface Challenge {
   id: string;
@@ -65,11 +75,11 @@ const CHALLENGES: Challenge[] = [
   },
 ];
 
-const MOCK_OPPONENTS = [
-  { name: "CodeNinja_X", avatar: "🥷", level: 42, rating: 2100 },
-  { name: "ByteWizard",  avatar: "🧙", level: 38, rating: 1950 },
-  { name: "AlgoQueen",   avatar: "👑", level: 35, rating: 1880 },
-  { name: "ReactRocket", avatar: "🚀", level: 31, rating: 1750 },
+const MOCK_OPPONENTS: Opponent[] = [
+  { name: "CodeNinja_X", avatar: "🥷", level: 42, rating: 2100, rank: "diamond" },
+  { name: "ByteWizard",  avatar: "🧙", level: 38, rating: 1950, rank: "diamond" },
+  { name: "AlgoQueen",   avatar: "👑", level: 35, rating: 1880, rank: "platinum" },
+  { name: "ReactRocket", avatar: "🚀", level: 31, rating: 1750, rank: "platinum" },
 ];
 
 const DIFF_COLORS = { Easy: "#34d399", Medium: "#fbbf24", Hard: "#f87171" };
@@ -273,6 +283,9 @@ export default function ArenaPage() {
                       <div>
                         <p className="text-xs font-bold" style={{ color: "var(--text)" }}>{opp.name}</p>
                         <p className="text-[10px]" style={{ color: "var(--text-faint)" }}>Lv.{opp.level} · Rating {opp.rating}</p>
+                        <div className="mt-1">
+                          <RankBadge rank={opp.rank} size="sm" animated={false} />
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
