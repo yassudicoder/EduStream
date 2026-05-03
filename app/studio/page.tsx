@@ -7,7 +7,7 @@ import { useTheme } from "@/app/layout";
 import { motion, AnimatePresence } from "framer-motion";
 import { Palette, User, Save, Eye, RotateCcw, Sparkles, Check, ChevronLeft } from "lucide-react";
 
-const PRESET_EMOJIS = ["🧑💻","🥷","🧙","👑","🚀","🐉","🤖","🦊","🐺","🦁","🐯","🦅","🐉","👾","🤠","🧛","🧜","🧝","🦸","🦹","🎭","🎮","⚡","🔥","❄️","🌊","🌌","🌸","💎","🏆"];
+const PRESET_EMOJIS = ["🧑💻","🥷","🧙","👑","🚀","🐉","🤖","🦊","🐺","🦁","🐯","🦅","","🤠","🧛","🧜","🧝","🦸","🦹","🎭","🎮","⚡","🔥","❄️","🌊","🌌","🌸","💎","🏆"];
 const PRESET_ACCESSORIES = ["none","🎩","👓","🎧","👑","🎯","⚔️","🛡️","🌟","💫","🔮","🎪"];
 const PRESET_COLORS = ["#7c3aed","#3b82f6","#10b981","#f59e0b","#ef4444","#ec4899","#06b6d4","#8b5cf6","#f97316","#84cc16","#00ff41","#ff00ff","#ffffff","#000000"];
 
@@ -313,8 +313,8 @@ export default function StudioPage() {
               <div className="glass card-shine rounded-2xl p-5 flex flex-col gap-3">
                 <p className="text-sm font-bold" style={{ color: "var(--text)" }}>Choose Emoji</p>
                 <div className="flex flex-wrap gap-2">
-                  {PRESET_EMOJIS.map(e => (
-                    <button key={e} onClick={() => setAvatarState(a => ({ ...a, emoji: e }))}
+                  {PRESET_EMOJIS.map((e, i) => (
+                    <button key={i} onClick={() => setAvatarState(a => ({ ...a, emoji: e }))}
                       className="w-10 h-10 rounded-xl text-xl flex items-center justify-center transition-all hover:scale-110"
                       style={{
                         background: avatar.emoji === e ? "var(--accent-glow)" : "var(--surface)",

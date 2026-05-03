@@ -7,6 +7,7 @@ import { AVAILABLE_LANGUAGES, getLessonsByLanguage } from "@/app/lib/lessons";
 import { motion } from "framer-motion";
 import { Flame, Award, Trophy, Swords, BookOpen, Star, Zap, ChevronRight, User } from "lucide-react";
 import Link from "next/link";
+import { DailyMissions } from "@/app/components/DailyMissions";
 
 const XP_PER_LEVEL = 200;
 
@@ -109,6 +110,11 @@ export default function DashboardPage() {
         className="glass card-shine rounded-2xl p-5">
         <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "var(--text-faint)" }}>XP Progress</p>
         <XPBar xp={xp} level={level} />
+      </motion.div>
+
+      {/* Daily Missions */}
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+        <DailyMissions />
       </motion.div>
 
       {/* Language cards */}
